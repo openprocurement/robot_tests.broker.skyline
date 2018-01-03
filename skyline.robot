@@ -646,6 +646,12 @@ Login
 Завантажити документ рішення кваліфікаційної комісії
     [Arguments]  ${username}  ${document}  ${tender_uaid}  ${award_num}
     skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
+    Click Element           id=upload_owner_protocol
+    sleep  4
+    Choose File             xpath=//input[contains(@id, "award_doc_upload_field_auctionProtocol")]   ${document}
+    sleep  5
+    Click Element           id=submit_owner_add_protocol
+    Wait Until Page Contains  Документи успішно збережено  10
 
 Відповісти на запитання
     [Arguments]  ${username}  ${tender_uaid}  ${answer_data}  ${question_id}
@@ -809,6 +815,11 @@ Login
 Завантажити угоду до тендера
     [Arguments]  ${username}  ${tender_uaid}  ${contract_num}  ${filepath}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Click Element           id=add_contract_docs
+    sleep  4
+    Choose File             xpath=//input[contains(@id, "contract_doc_upload_fieldcontractSigned")]   ${filepath}
+    sleep  5
+    Click Element           id=submit_add_contract_form
 
 Завантажити протокол аукціону в авард
     [Arguments]  ${username}  ${tender_uaid}  ${filepath}  ${award_index}
