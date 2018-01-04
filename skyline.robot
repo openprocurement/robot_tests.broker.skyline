@@ -79,7 +79,7 @@ ${locator.cancelldoc.description}                    xpath=//div[contains(@class
 
 Login
   [Arguments]  @{ARGUMENTS}
-  Click Element        xpath=//li[contains(@id, 'lbtn-mobile')]/a
+  Click Element        xpath=//li[contains(@id, 'loginbtn')]/a
   Sleep   2
   Clear Element Text   id=loginform-username
   Input text      ${login_email}      ${USERS.users['${ARGUMENTS[0]}'].login}
