@@ -666,14 +666,14 @@ Login
 Подати цінову пропозицію
     [Arguments]  ${username}  ${tender_uaid}  ${bid}
     ${status}=    Get From Dictionary     ${bid.data}          qualified
-    ${amount}=    Get From Dictionary     ${bid.data.value}    amount
-    ${amount}=    Convert To String       ${amount}
     Run Keyword If  ${status}
     ...  skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
     ...  ELSE   Go to   ${USERS.users['${username}'].homepage}
     Click Element       id=add_bid_btn
     Sleep   4
     ${presentsum}=  Run Keyword And Return Status    Element Should Be Visible   id=addbidform-sum
+    Run Keyword If    ${presentsum}     ${amount}=    Get From Dictionary     ${bid.data.value}    amount
+    Run Keyword If    ${presentsum}     ${amount}=    Convert To String       ${amount}
     Run Keyword If    ${presentsum}     Input Text  id=addbidform-sum  ${amount}
     ${presentnocredit}=  Run Keyword And Return Status    Element Should Be Visible   id=addbidform-no_credit_relation
     Run Keyword If    ${presentnocredit}     Click Element       id=addbidform-no_credit_relation
