@@ -667,10 +667,14 @@ Login
 Подати цінову пропозицію
     [Arguments]  ${username}  ${tender_uaid}  ${bid}
     skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
+    ${amount}=    Get From Dictionary     ${bid.data.value}    amount
+    ${amount}=    Convert To String       ${amount}
     Click Element       id=add_bid_btn
     Sleep   4
-    Wait Until Element Is Visible       id=addbidform-no_credit_relation   10
-    Click Element       id=addbidform-no_credit_relation
+    ${presentsum}=  Run Keyword And Return Status    Element Should Be Visible   id=addbidform-sum
+    Run Keyword If    ${presentsum}     Input Text  id=addbidform-sum  ${amount}
+    ${presentnocredit}=  Run Keyword And Return Status    Element Should Be Visible   id=addbidform-no_credit_relation
+    Run Keyword If    ${presentnocredit}     Click Element       id=addbidform-no_credit_relation
     Sleep   4
     Click Element       id=submit_add_bid_form
     Wait Until Page Contains  Ваша пропозиція  10
