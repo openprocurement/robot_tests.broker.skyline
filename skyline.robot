@@ -672,15 +672,19 @@ Login
     Click Element       id=add_bid_btn
     Sleep   4
     ${presentsum}=  Run Keyword And Return Status    Element Should Be Visible   id=addbidform-sum
-    Run Keyword If    ${presentsum}     ${amount}=    Get From Dictionary     ${bid.data.value}    amount
-    Run Keyword If    ${presentsum}     ${amount}=    Convert To String       ${amount}
-    Run Keyword If    ${presentsum}     Input Text  id=addbidform-sum  ${amount}
+    Run Keyword If    ${presentsum}     skyline.Вказати цінову пропозицію   ${bid}
     ${presentnocredit}=  Run Keyword And Return Status    Element Should Be Visible   id=addbidform-no_credit_relation
     Run Keyword If    ${presentnocredit}     Click Element       id=addbidform-no_credit_relation
     Sleep   4
     Click Element       id=submit_add_bid_form
     Wait Until Page Contains  Ваша пропозиція  10
     [Return]    ${bid}
+
+Вказати цінову пропозицію
+    [Arguments]  ${bid}
+    ${amount}=    Get From Dictionary     ${bid.data.value}    amount
+    ${amount}=    Convert To String       ${amount}
+    Input Text  id=addbidform-sum  ${amount}
 
 Скасувати цінову пропозицію
     [Arguments]  ${username}  ${tender_uaid}
