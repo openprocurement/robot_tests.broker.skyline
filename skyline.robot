@@ -321,6 +321,8 @@ Login
 
 Отримати інформацію із тендера
     [Arguments]  ${username}  ${tender_uaid}  ${field_name}
+    Run Keyword If  '${fieldname}' == 'tenderPeriod.endDate'
+    ...  skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     ${return_value}=  Run Keyword If
     ...  'classification' in '${field_name}'       Отримати інформацію про класифікатор із предмету  ${field_name}
     ...  ELSE IF    'unit' in '${field_name}'      Отримати інформацію про юніт із предмету  ${field_name}
@@ -442,9 +444,12 @@ Login
   skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
   Click Element     id=update_auction_btn
   Sleep   2
-  Input text  name=addauctionform-[${field_name}]  ${field_value}
+  ${val}=  Run Keyword If  '${field_name}' == 'tenderAttempts'  Convert To String  ${field_value}
+  ...  ELSE IF  '${field_name}' == 'dgfDecisionDate'  skyline_convertdate  ${field_value}
+  ...  ELSE  Set Variable  ${field_value}
+  Run Keyword If  '${field_name}' == 'tenderAttempts'  Select From List By Value  id=addauctionform-tenderattempts  ${val}
+  ...  ELSE  Input text  name=addauctionform-[${field_name}]  ${val}
   Click Button    id=add-auction-form-save
-  Wait Until Page Contains  ${field_value}  30
 
 Отримати інформацію про value.currency
   ${return_value}=   Отримати текст із поля і показати на сторінці  value.currency
