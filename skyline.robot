@@ -163,7 +163,6 @@ Login
     Input text      id=user-firm_phone                      ${procuringEntity_contactPoint_telephone}
     Input text      id=user-edrpoy                          ${procuringEntity_identifier_id}
     Input text      id=user-firm_name                       ${procuringEntity_name}
-    Click Element       id=user-reglament_apply
     Click Element       id=profile_save_btn
     Sleep   4
 
@@ -666,19 +665,26 @@ Login
 
 Подати цінову пропозицію
     [Arguments]  ${username}  ${tender_uaid}  ${bid}
-    skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
-    ${amount}=    Get From Dictionary     ${bid.data.value}    amount
-    ${amount}=    Convert To String       ${amount}
+    ${status}=    Get From Dictionary     ${bid.data}          qualified
+    Run Keyword If  ${status}
+    ...  skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
+    ...  ELSE   Go to   ${USERS.users['${username}'].homepage}
     Click Element       id=add_bid_btn
     Sleep   4
     ${presentsum}=  Run Keyword And Return Status    Element Should Be Visible   id=addbidform-sum
-    Run Keyword If    ${presentsum}     Input Text  id=addbidform-sum  ${amount}
+    Run Keyword If    ${presentsum}     skyline.Вказати цінову пропозицію   ${bid}
     ${presentnocredit}=  Run Keyword And Return Status    Element Should Be Visible   id=addbidform-no_credit_relation
     Run Keyword If    ${presentnocredit}     Click Element       id=addbidform-no_credit_relation
     Sleep   4
     Click Element       id=submit_add_bid_form
     Wait Until Page Contains  Ваша пропозиція  10
     [Return]    ${bid}
+
+Вказати цінову пропозицію
+    [Arguments]  ${bid}
+    ${amount}=    Get From Dictionary     ${bid.data.value}    amount
+    ${amount}=    Convert To String       ${amount}
+    Input Text  id=addbidform-sum  ${amount}
 
 Скасувати цінову пропозицію
     [Arguments]  ${username}  ${tender_uaid}
@@ -774,7 +780,7 @@ Login
     \    Exit For Loop If    ${test}
     \    reload page
     Click Element     id=cwalificate_winer_btn
-    Wait Until Element Is Visible       id=signed_contract_btn   30
+    Wait Until Page Contains  Переможець кваліфікований успішно  10
 
 Підтвердити підписання контракту
     [Documentation]
@@ -784,8 +790,6 @@ Login
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Click Element     id=signed_contract_btn
     Input Text  xpath=//input[contains(@id,"addsignform-contractnumber")]  ${contract_num}
-    ${now}=  Get Current Date     increment=-00:05:00     result_format=%Y-%m-%d %H:%M
-    Input Text  xpath=//input[contains(@id,"addsignform-datesigned")]   ${now}
     Click Button     id=submit_sign_contract
     Wait Until Page Contains  Договір підписано успішно  10
 
@@ -804,8 +808,6 @@ Login
   Click Element           id=cansel_auction_btn
   sleep  2
   Input text        xpath=//textarea[@id="canselform-reason"]       ${cancellation_reason}
-  Click Element     id=cansel_doc_upload_field
-  sleep  2
   Choose File       id=cansel_doc_upload_field                      ${document}
   Wait Until Element Is Visible       xpath=//div[contains(@class, 'ho_upload_item_wrap')]   30
   sleep  4
@@ -833,11 +835,9 @@ Login
     Choose File             xpath=//input[contains(@id, "award_doc_upload_field_auctionProtocol")]   ${filepath}
     sleep  5
     Click Element           id=submit_owner_add_protocol
-    Wait Until Page Contains  Документи успішно збережено  10
 
 
 Підтвердити наявність протоколу аукціону
     [Arguments]  ${username}  ${tender_uaid}  ${award_index}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
-    Click Element           id=confirm_owner_protocol
-    Wait Until Page Contains  Переможець кваліфікований успішно  10
+    Click Element           id=upload_owner_protocol
