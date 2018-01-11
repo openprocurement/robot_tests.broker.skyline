@@ -407,8 +407,9 @@ Login
   [Return]  ${return_value}
 
 Отримати інформацію про tenderAttempts
-    ${return_value}=   Отримати текст із поля і показати на сторінці   tenderAttempts
-    [Return]  ${return_value}
+  ${return_value}=   Отримати текст із поля і показати на сторінці   tenderAttempts
+  ${return_value}=  Convert To Integer  ${return_value}
+  [Return]  ${return_value}
 
 Отримати інформацію про eligibilityCriteria
   ${return_value}=   Отримати текст із поля і показати на сторінці   eligibilityCriteria
