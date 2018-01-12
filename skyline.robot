@@ -846,4 +846,4 @@ Login
 Підтвердити наявність протоколу аукціону
     [Arguments]  ${username}  ${tender_uaid}  ${award_index}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
-    Click Element           id=upload_owner_protocol
+    Click Element           id=confirm_owner_protocol
