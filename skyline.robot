@@ -226,10 +226,16 @@ Login
 
 Завантажити документ
     [Arguments]  ${username}  ${filepath}  ${tender_uaid}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Click Element       xpath=//a[contains(@id, 'update_auction_btn')]
+    Sleep   2
     Choose File     xpath=//input[contains(@id, "doc_upload_field_biddingDocuments")]   ${filepath}
 
 Завантажити ілюстрацію
     [Arguments]  ${username}  ${tender_uaid}  ${filepath}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Click Element       xpath=//a[contains(@id, 'update_auction_btn')]
+    Sleep   2
     Choose File       id=doc_upload_field_illustration        ${filepath}
 
 Додати Virtual Data Room
@@ -243,6 +249,8 @@ Login
 
 Додати публічний паспорт активу
     [Arguments]  ${username}  ${tender_uaid}  ${certificate_url}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Click Element       xpath=//a[contains(@id, 'update_auction_btn')]
     Wait Until Element Is Visible       xpath=//div[contains(@id,'doc_upload_wrap_x_dgfPublicAssetCertificate')]/div/div[contains(@class,'ho_upload_link_btn')]      30
     Click Element   xpath=//div[contains(@id,'doc_upload_wrap_x_dgfPublicAssetCertificate')]/div/div[contains(@class,'ho_upload_link_btn')]
     Sleep   4
@@ -251,6 +259,9 @@ Login
 
 Завантажити документ в тендер з типом
     [Arguments]  ${username}  ${tender_uaid}  ${filepath}  ${documentType}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Click Element       xpath=//a[contains(@id, 'update_auction_btn')]
+    Sleep   4
     Choose File       id=doc_upload_field_${documentType}        ${filepath}
 
 Додати офлайн документ
@@ -443,13 +454,13 @@ Login
 Внести зміни в тендер
   [Arguments]  ${username}  ${tender_uaid}  ${field_name}  ${field_value}
   skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
-  Click Element     id=update_auction_btn
+  Click Element       xpath=//a[contains(@id, 'update_auction_btn')]
   Sleep   2
   ${val}=  Run Keyword If  '${field_name}' == 'tenderAttempts'  Convert To String  ${field_value}
   ...  ELSE IF  '${field_name}' == 'dgfDecisionDate'  skyline_convertdate  ${field_value}
   ...  ELSE  Set Variable  ${field_value}
   Run Keyword If  '${field_name}' == 'tenderAttempts'  Select From List By Value  id=addauctionform-tenderattempts  ${val}
-  ...  ELSE  Input text  name=addauctionform-[${field_name}]  ${val}
+  ...  ELSE  Input text  name=AddAuctionForm[${field_name}]  ${val}
   Click Button    id=add-auction-form-save
 
 Отримати інформацію про value.currency
@@ -840,10 +851,11 @@ Login
     sleep  4
     Choose File             xpath=//input[contains(@id, "award_doc_upload_field_auctionProtocol")]   ${filepath}
     sleep  5
-    Click Element           id=submit_owner_add_protocol
 
 
 Підтвердити наявність протоколу аукціону
     [Arguments]  ${username}  ${tender_uaid}  ${award_index}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
-    Click Element           id=confirm_owner_protocol
+    Click Element           id=upload_owner_protocol
+    sleep  4
+    Click Element           id=submit_owner_add_protocol
