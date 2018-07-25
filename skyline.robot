@@ -347,7 +347,7 @@ Login
     ${prop_field_name}=         Replace String    ${field_name}    .   _    count=1
     ${return_value}=   Get Text     id=${prop_field_name}
     ${return_value}=  Run Keyword If
-    ...  'quantity' in '${prop_field_name}'    Convert To Integer    ${return_value}
+    ...  'quantity' in '${prop_field_name}'    Convert To Number    ${return_value}
     ...  ELSE       Convert To String   ${return_value}
     [Return]  ${return_value}
 
