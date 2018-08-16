@@ -1169,11 +1169,11 @@ Login
     [Documentation]
     ...      [Призначення] Завантажує документ, який знаходиться по шляху filepath і має documentType = cancellationDetails, до об’єкта МП tender_uaid користувачем username.
     skyline.Пошук об’єкта МП по ідентифікатору  ${username}  ${tender_uaid}
-    Click Element  id=update_asset_btn
+    Click Element  id=delete_start_asset_btn
     Sleep   2
     Choose File     xpath=//input[contains(@id, "doc_upload_field_cancellationDetails")]   ${filepath}
-    Sleep   5
-    Click Element  id=save_asset
+    Sleep   10
+    Click Element  id=upload-cancelation-btn
 
 Видалити об'єкт МП
     [Arguments]  ${username}  ${tender_uaid}
@@ -1356,7 +1356,6 @@ Login
     ...      [Призначення] Завантажує документ, який знаходиться по шляху filepath і має documentType = cancellationDetails, до лоту tender_uaid користувачем username.
     skyline.Пошук лоту по ідентифікатору  ${username}  ${tender_uaid}
     Click Element  id=update_lot_btn
-    Wait Until Element Is Visible      id=addlotform-asset_id    30
     Sleep   2
     Choose File     xpath=//input[contains(@id, "doc_upload_field_cancellationDetails")]   ${filepath}
     Sleep   5
