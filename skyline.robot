@@ -340,7 +340,6 @@ Login
     ${return_value}=  Run Keyword If
     ...  'status' in '${field_name}'       convert_skyline_string    ${return_value}
     ...  ELSE     Set Variable  ${return_value}
-
     [Return]  ${return_value}
 
 Отримати інформацію із предмету без індекса
@@ -1487,6 +1486,7 @@ wait with reload
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
     Wait Until Element Is Visible  id=winner_admission  30
+    Sleep   10
     Click Element           id=winner_admission
     Sleep   2
     Choose File             xpath=//input[contains(@id, 'admissionProtocol_upload_field')]   ${filepath}
@@ -1505,9 +1505,12 @@ wait with reload
     [Arguments]  ${username}  ${tender_uaid}  ${filepath}  ${award_index}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
+    sleep  5
     Click Element           id=upload_owner_protocol_and_contract
-    sleep  4
+    sleep  5
     Choose File             xpath=//input[contains(@id, "award_doc_upload_field_auctionProtocol")]   ${filepath}
+    Click Element           id=submit_owner_add_protocol
+    Wait Until Page Contains  Протокол завантажено успішно  15
 
 Підтвердити постачальника
     [Arguments]  ${username}  ${tender_uaid}  ${award_num}
@@ -1517,18 +1520,21 @@ wait with reload
     \    Exit For Loop If    ${test}
     \    reload page
     Click Element     id=cwalificate_winer_btn
-    Wait Until Element Is Visible       id=signed_contract_btn   30
+    Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
+    Wait Until Page Contains  Оплачено, очікується підписання договору  15
 
 Завантажити протокол дискваліфікації в авард
-    [Arguments]  ${username}   ${filepath}   ${tender_uaid}   ${award_index}
+    [Arguments]  ${username}  ${tender_uaid}  ${filepath}  ${award_index}
     [Documentation]
     ...  [Призначення] Завантажує протокол дискваліфікації, який знаходиться по шляху filepath і має documentType = act/rejectionProtocol, до ставки кандидата на кваліфікацію аукціону tender_uaid користувачем username. Ставка, до якої потрібно додавати протокол визначається за award_index.
     ...  [Повертає] reply (словник з інформацією про документ).
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Wait Until Element Is Visible  id=rejectionProtocol_upload  30
     Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
+    Wait Until Element Is Visible  id=rejectionProtocol_upload  30
+    Sleep  5
     Click Element           id=rejectionProtocol_upload
-    Sleep   2
+    Sleep  2
     Choose File            xpath=//input[contains(@id, 'rejectionProtocol_upload_field')]   ${filepath}
     Click Button           xpath=//button[contains(@id,'rejectionProtocol_upload_submit')]
     Wait Until Page Contains  Рішення про відмову у затвердженні протоколу опубліковано  15
@@ -1542,6 +1548,7 @@ wait with reload
     [Arguments]  ${username}  ${tender_uaid}  ${award_num}
     skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
     Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
+    Sleep  5
     Click Element                         xpath=//a[contains(@id, "refuse_btn")]
     Wait Until Page Contains   Ви успішно відмовились від участі в кваліфікації переможців   10
 
@@ -1552,8 +1559,10 @@ wait with reload
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Wait Until Element Is Visible  id=contract_rejectionProtocol_upload  30
     Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
+    sleep  5
+    Capture Page Screenshot
     Click Element           id=contract_rejectionProtocol_upload
-    Sleep   2
+    Sleep  5
     Choose File            xpath=//input[contains(@id, 'contract_rejectionProtocol_upload_field')]   ${filepath}
     Click Button           xpath=//button[contains(@id,'contract_rejectionProtocol_upload_submit')]
     Wait Until Page Contains  Рішення про скасування контракту опубліковано  15
@@ -1564,16 +1573,6 @@ wait with reload
     ...  [Призначення] Переводить договір під номером contract_num до аукціону tender_uaid в статус cancelled.
     ### Операція зміни статусу та завантаження виконується в одну дію в попередньому кейворді
     No Operation
-
-Встановити дату підписання угоди
-    [Arguments]  ${username}  ${tender_uaid}  ${contract_num}  ${fieldvalue}
-    [Documentation]
-    ...  [Призначення] Встановлює в договорі під номером contract_num аукціону tender_uaid дату підписання контракту зі значенням fieldvalue.
-    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
-    Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
-    Click Element     id=signed_contract_btn
-    Input Text  xpath=//input[contains(@id,"addsignform-datesigned")]  ${fieldvalue}
-    Input Text  xpath=//input[contains(@id,"addsignform-contractnumber")]  ${contract_num}
 
 Завантажити угоду до тендера
     [Arguments]  ${username}  ${tender_uaid}  ${contract_num}  ${filepath}
@@ -1586,10 +1585,25 @@ wait with reload
     Click Button           xpath=//button[contains(@id,'submit_add_contract_form')]
     Wait Until Page Contains  Збережено документи договору аукціону  15
 
+Встановити дату підписання угоди
+    [Arguments]  ${username}  ${tender_uaid}  ${contract_num}  ${fieldvalue}
+    [Documentation]
+    ...  [Призначення] Встановлює в договорі під номером contract_num аукціону tender_uaid дату підписання контракту зі значенням fieldvalue.
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
+    Sleep  5
+    Click Element     id=signed_contract_btn
+    Wait Until Element Is Visible  id=addsignform-datesigned  30
+    ${fieldvalue}=  etc_convertdate  ${fieldvalue}
+    Input Text  xpath=//input[contains(@id,"addsignform-datesigned")]  ${fieldvalue}
+    Capture Page Screenshot
+    Click Button     id=submit_sign_contract
+    Wait Until Page Contains  Договір підписано успішно  10
+
 Підтвердити підписання контракту
     [Documentation]
     ...      [Arguments] Username, tender uaid, contract number
     ...      [Return] Nothing
     [Arguments]  ${username}  ${tender_uaid}  ${contract_num}
-    Click Button     id=submit_sign_contract
-    Wait Until Page Contains  Договір підписано успішно  10
+    ### Операція зміни статусу та завантаження виконується в одну дію в попередньому кейворді
+    No Operation
