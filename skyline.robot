@@ -7,7 +7,7 @@ Library     skyline_helper.py
 
 
 *** Variables ***
-${TESTDOMAIN}                                        http://test.skyline.auction/
+${TESTDOMAIN}                                        http://test.skyline.auction
 ${sign_in}                                           id=loginbtn
 ${login_email}                                       id=loginform-username
 ${login_pass}                                        id=loginform-password
