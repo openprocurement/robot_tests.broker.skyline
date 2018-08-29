@@ -1594,7 +1594,7 @@ wait with reload
     Sleep  5
     Click Element     id=signed_contract_btn
     Wait Until Element Is Visible  id=addsignform-datesigned  30
-    ${fieldvalue}=  etc_convertdate  ${fieldvalue}
+    ${fieldvalue}=  skyline_convertdate  ${fieldvalue}
     Input Text  xpath=//input[contains(@id,"addsignform-datesigned")]  ${fieldvalue}
     Capture Page Screenshot
     Click Button     id=submit_sign_contract
