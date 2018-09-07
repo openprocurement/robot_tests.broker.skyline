@@ -51,8 +51,8 @@ def convert_skyline_string(string):
             u'Очікується опублікування протоколу':                    'active.qualification',
             u'Очікується підписання договору':                        'active.awarded',
             u'Аукціон не відбувся':                                   'unsuccessful',
-            u'Аукціон завершено':                                     'complete',
-            u'Аукціон скасовано':                                     'cancelled',
+            u'Аукціон відбувся':                                      'complete',
+            u'Аукціон відмінено':                                     'cancelled',
             u'Чорновик':                                              'draft',
             u'Майна банків':                                          'dgfOtherAssets',
             u'Прав вимоги за кредитами':                              'dgfFinancialAssets',
@@ -63,14 +63,14 @@ def convert_skyline_string(string):
             u'Грн.':                                                  'UAH',
             u'(включно з ПДВ)':                                       True,
             u'(без ПДВ)':                                             False,
-            u'[Очікування рішення про викуп]':                        'pending.admission',
-            u'[Переможець розглядається кваліфікаційною комісією]':   'pending',
-            u'[Oчікування кінця кваліфікації переможця]':             'pending.waiting',
-            u'[Учасник достроково забрав гарантійний внесок]':        'cancelled',
+            u'[Очікується рішення про викуп]':                        'pending.admission',
+            u'[Очікується протокол]':                                 'pending',
+            u'[Очікується рішення]':                                  'pending.waiting',
+            u'[Відмова від очікування]':                              'cancelled',
             u'[Очікується протокол]':                                 'pending.verification',
             u'[Очікується оплата]':                                   'pending.payment',
-            u'[Оплачено, очікується підписання договору]':            'active',
-            u'[Кваліфікаційна комісія відмовила переможцю]':          'unsuccessful',
+            u'[Переможець]':                                          'active',
+            u'[Рішення скасоване]':                                   'unsuccessful',
             u'Опубліковано. Очікування інформаційного повідомлення.': 'pending',
             u'Виключено з переліку':                                  'deleted',
             u'Реєстрацію завершено':                                  'complete',
@@ -100,6 +100,15 @@ def convert_skyline_lot_auction_string(string):
             }
     return data.get(string, string)
 
+def convert_skyline_contract_string(string):
+    data = {
+            u'Період на внесення оплати':                                         'active.payment',
+            u'Період на завантаження фінального Наказу про приватизацію об’єкту': 'active.approval',
+            u'Період на виконання решти умов контракту':                          'active',
+            u'Неуспішний':                                                        'unsuccessful',
+            u'Відмінений':                                                        'terminated',
+            }
+    return data.get(string, string)
 
 
 

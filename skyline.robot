@@ -340,6 +340,7 @@ Login
     ${return_value}=  Run Keyword If
     ...  'status' in '${field_name}'       convert_skyline_string    ${return_value}
     ...  ELSE     Set Variable  ${return_value}
+
     [Return]  ${return_value}
 
 Отримати інформацію із предмету без індекса
@@ -1171,7 +1172,7 @@ Login
     Click Element  id=delete_start_asset_btn
     Sleep   2
     Choose File     xpath=//input[contains(@id, "doc_upload_field_cancellationDetails")]   ${filepath}
-    Sleep   10
+    Sleep   5
     Click Element  id=upload-cancelation-btn
 
 Видалити об'єкт МП
@@ -1465,9 +1466,7 @@ wait with reload
     Sleep   15
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
 
-
 ######################### Кваліфікація #########################
-
 
 Отримати кількість авардів в тендері
     [Arguments]  ${username}  ${tender_uaid}
@@ -1521,7 +1520,7 @@ wait with reload
     \    reload page
     Click Element     id=cwalificate_winer_btn
     Execute Javascript  $('html, body').animate({scrollTop: $("#awards_count").offset().top}, 100);
-    Wait Until Page Contains  Оплачено, очікується підписання договору  15
+    Wait Until Page Contains  Переможець  15
 
 Завантажити протокол дискваліфікації в авард
     [Arguments]  ${username}  ${tender_uaid}  ${filepath}  ${award_index}
@@ -1607,3 +1606,130 @@ wait with reload
     [Arguments]  ${username}  ${tender_uaid}  ${contract_num}
     ### Операція зміни статусу та завантаження виконується в одну дію в попередньому кейворді
     No Operation
+
+
+######################### Контрактинг #########################
+
+Пошук контракту по ідентифікатору
+    [Arguments]  ${username}  ${contract_uaid}
+    Switch Browser   ${BROWSER_ALIAS}
+    Go to    ${TESTDOMAIN}/prozorrosale2/auctions/get-all-contracts?n=15
+    Sleep   15
+    Go to    ${TESTDOMAIN}/prozorrosale2/auctions/contracts
+    Wait Until Element Is Visible       id=cdb2contractssearch-all   15
+    Input text      id=cdb2contractssearch-all    ${contract_uaid}
+    Click Element   id=contracts-search-btn
+    Sleep   2
+    Click Element   xpath=//a[contains(@class, 'show-one-btn')]
+    Wait Until Element Is Visible      id=info_status    15
+
+Активувати контракт
+    #використовується тільки для брокера Квінти, тому його не потрібно реалізовувати, лише додати в драйвер свого майданчика
+    [Arguments]  ${username}  ${contract_uaid}
+    [Documentation]
+    ...      [Призначення] Змінює власника контракту і активує його.
+    Go to    ${TESTDOMAIN}/prozorrosale2/auctions/get-all-contracts?n=15
+    Sleep   15
+    skyline.Пошук контракту по ідентифікатору  ${username}  ${contract_uaid}
+
+Отримати інформацію із договору
+    [Arguments]  ${username}  ${contract_uaid}  ${fieldname}
+    [Documentation]
+    ...      [Призначення] Отримує значення поля field_name для контракту contract_uaid.
+    ...      [Повертає] field_value - значення поля.
+    skyline.wait with reload  contractlocator  ${fieldname}
+    ${return_value}=   Get Text  id=info_${fieldname}
+
+    ${return_value}=  Run Keyword If
+    ...  'status' in '${fieldname}'            convert_skyline_contract_string  ${return_value}
+    ...  ELSE IF    'value' in '${fieldname}'  Convert To Number  ${return_value}
+    ...  ELSE       Convert to string  ${return_value}
+
+    [Return]  ${return_value}
+
+Отримати інформацію з активу в договорі
+    [Arguments]  ${username}  ${contract_uaid}  ${item_id}  ${fieldname}
+    [Documentation]
+    ...      [Призначення] Отримує значення поля field_name з активу з item_id контракту contract_uaid.
+    ...      [Повертає] field_value - значення поля.
+    ${return_value}=   Get Text  ${lotlocator.items[0].${fieldname}}
+    ${return_value}=  Run Keyword If
+    ...  'registrationDetails.status' in '${fieldname}'    convert_skyline_lot_string  ${return_value}
+    ...  ELSE IF    'quantity' in '${fieldname}'  Convert To Number  ${return_value}
+    ...  ELSE       Convert to string  ${return_value}
+
+    [Return]  ${return_value}
+
+Вказати дату отримання оплати
+    [Arguments]  ${username}  ${contract_uaid}  ${dateMet}  ${milestone_index}
+    [Documentation]
+    ...      [Призначення] Вказує дату отримання оплати dateMet в контракті contract_uaid
+    skyline.Пошук контракту по ідентифікатору  ${username}  ${contract_uaid}
+    Click Element   id=contract-confirm-payment
+    Sleep  5
+    ${date}=    skyline_convertdate    ${dateMet}
+    Input text  id=contractconfirmpaymentform-datemet  ${date}
+    Click Element   id=contract-confirm-payment-submit
+    Wait Until Page Contains    Дату оплати договору збережено успішно  20
+
+Підтвердити відсутність оплати
+    [Arguments]  ${username}  ${contract_uaid}  ${milestone_index}
+    [Documentation]
+    ...      [Призначення] Підтверджується відсутність оплати( в перший майлстоун передається статус notMet)
+    skyline.Пошук контракту по ідентифікатору  ${username}  ${contract_uaid}
+    Click Element   id=contract-no-payment
+    Sleep  5
+    Click Element   id=contract-no-payment-submit
+    Wait Until Page Contains    Приватизація об’єкта неуспішна  20
+
+Завантажити наказ про завершення приватизації
+    [Arguments]  ${username}  ${contract_uaid}  ${filepath}
+    [Documentation]
+    ...      [Призначення] Завантажує документ filepath про завершення приватизації в контракт  contract_uaid.
+    skyline.Пошук контракту по ідентифікатору  ${username}  ${contract_uaid}
+    Click Element   id=contract-upload-order
+    Sleep  5
+    Choose File     xpath=//input[contains(@id, "contract_upload_field_order")]   ${filepath}
+
+Вказати дату прийняття наказу
+    [Arguments]  ${username}  ${contract_uaid}  ${dateMet}
+    [Documentation]
+    ...      [Призначення] Вказує дату прийняття наказу dateMet в контракті contract_uaid
+    ${date}=    skyline_convertdate    ${dateMet}
+    Input text  id=contractuploadorderform-orderconfirmdatemet  ${date}
+    Click Element   id=contract-upload-order-submit
+    Wait Until Page Contains    Приватизація об’єкта завершена  20
+
+Підтвердити відсутність наказу про приватизацію
+    [Arguments]  ${username}  ${contract_uaid}  ${filepath}
+    [Documentation]
+    ...      [Призначення] Завантажується документ filepath  з типом rejectionProtocol і підтверджується відсутність завантаженого наказу про приватизацію (в другий майлстоун передається статус notMet)
+    skyline.Пошук контракту по ідентифікатору  ${username}  ${contract_uaid}
+    Click Element   id=contract-no-order
+    Sleep  5
+    Choose File     xpath=//input[contains(@id, "contract_upload_field_rejectionProtocol")]   ${filepath}
+    Click Element   id=contract-no-order-submit
+    Wait Until Page Contains    Приватизація об’єкта неуспішна  20
+
+Вказати дату виконання умов контракту
+    [Arguments]  ${username}  ${contract_uaid}  ${dateMet}
+    [Documentation]
+    ...      [Призначення] Вказує дату виконання умов договору dateMet в контракті contract_uaid
+    skyline.Пошук контракту по ідентифікатору  ${username}  ${contract_uaid}
+    Click Element   id=contract-fulfilled
+    Sleep  5
+    ${date}=    skyline_convertdate    ${dateMet}
+    Input text  id=contractfulfilledform-datemet  ${date}
+    Click Element   id=contract-fulfilled-submit
+    Wait Until Page Contains    Статус про виконання умов продажу збережено успішно  20
+
+Підтвердити невиконання умов приватизації
+    [Arguments]  ${username}  ${contract_uaid}
+    [Documentation]
+    ...      [Призначення] В третій майлстоун передається статус notMet(Кнопка в інтерфейсі “Умови продажу не виконано”)
+    skyline.Пошук контракту по ідентифікатору  ${username}  ${contract_uaid}
+    Click Element   id=contract-not-fulfilled
+    Sleep  5
+    Choose File     xpath=//input[contains(@id, "contract_notfullfiled_rejectionProtocol")]   ${filepath}
+    Click Element   id=contract-not-fulfilled-submit
+    Wait Until Page Contains    Умови приватизації не виконано  20
