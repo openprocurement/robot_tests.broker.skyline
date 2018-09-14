@@ -102,11 +102,11 @@ def convert_skyline_lot_auction_string(string):
 
 def convert_skyline_contract_string(string):
     data = {
-            u'Період на внесення оплати':                                         'active.payment',
-            u'Період на завантаження фінального Наказу про приватизацію об’єкту': 'active.approval',
-            u'Період на виконання решти умов контракту':                          'active',
-            u'Неуспішний':                                                        'unsuccessful',
-            u'Відмінений':                                                        'terminated',
+            u'Очікується оплата':                  'active.payment',
+            u'Договір оплачено. Очікується наказ': 'active.approval',
+            u'Період виконання умов продажу':      'active',
+            u'Приватизація обʼєкта неуспішна':     'unsuccessful',
+            u'Приватизація обʼєкта завершена':     'terminated',
             }
     return data.get(string, string)
 
