@@ -20,6 +20,7 @@ ${locator.procurementMethodType}                     id=info_procurementMethodTy
 ${locator.eligibilityCriteria}                       id=eligibilityCriteria_marker
 ${locator.status}                                    id=auction_status_name
 ${locator.description}                               id=info_description
+${locator.auctionParameters.dutchSteps}              id=info_auctionParameters
 ${locator.minimalStep.amount}                        xpath=//td[contains(@id, 'info_minimalStep')]/span[contains(@class, 'amount')]
 ${locator.value.amount}                              xpath=//td[contains(@id, 'info_value')]/span[contains(@class, 'amount')]
 ${locator.value.currency}                            xpath=//td[contains(@id, 'info_value')]/span[contains(@class, 'currency')]
@@ -65,6 +66,9 @@ ${locator.cancellations[0].reason}                   id=cancell_reason
 
 ${locator.cancelldoc.title}                          xpath=//div[contains(@class, 'fg_modal_title')]
 ${locator.cancelldoc.description}                    xpath=//div[contains(@class, 'fg_modal_description')]
+
+${locator.contracts[0].datePaid}                     id=contract_datePaid
+${locator.contracts[1].datePaid}                     id=contract_datePaid
 
 *** Keywords ***
 Підготувати клієнт для користувача
@@ -275,10 +279,12 @@ Login
     \    ${test}=   Wait Until Page Contains    Кваліфікація переможця  30
     \    Exit For Loop If    ${test}
     \    reload page
-    Click Element           id=add_user_bid_docs
+    Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
     Sleep   2
-    Choose File             xpath=//input[contains(@id, 'bid_doc_upload_fieldauctionProtocol')]   ${filepath}
-    Click Button           xpath=//button[contains(@id,'submit_add_bid_doc_form')]
+    Click Element           id=upload_owner_protocol
+    Sleep   4
+    Choose File             xpath=//input[contains(@id, "award_doc_upload_field_auctionProtocol")]   ${filepath}
+    Click Button           xpath=//button[contains(@id,'submit_owner_add_protocol')]
 
 Пошук тендера по ідентифікатору
   [Arguments]  @{ARGUMENTS}
@@ -451,6 +457,11 @@ Login
   ${return_value}=   Convert To Number   ${return_value}
   [Return]   ${return_value}
 
+Отримати інформацію про auctionParameters.dutchSteps
+  ${return_value}=   Отримати текст із поля і показати на сторінці   auctionParameters.dutchSteps
+  ${return_value}=   Convert To Number   ${return_value}
+  [Return]   ${return_value}
+
 Внести зміни в тендер
   [Arguments]  ${username}  ${tender_uaid}  ${field_name}  ${field_value}
   skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
@@ -608,6 +619,12 @@ Login
   ${return_value}=  Get text          ${locator.cancellations[0].reason}
   [Return]  ${return_value}
 
+Отримати інформацію про contracts[1].datePaid
+  ${return_value}=   Отримати текст із поля і показати на сторінці  contracts[1].datePaid
+  ${return_value}=   convert_skyline_date_to_iso_format   ${return_value}
+  ${return_value}=   add_timezone_to_date   ${return_value.split('.')[0]}
+  [return]  ${return_value}
+
 Отримати інформацію із документа
   [Arguments]  ${username}  ${tender_uaid}  ${doc_id}  ${field}
   ${tender}=  skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
@@ -647,6 +664,7 @@ Login
 Скасування рішення кваліфікаційної комісії
     [Arguments]  ${username}  ${tender_uaid}  ${award_num}
     skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
+    Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
     Click Element                         xpath=//a[contains(@id, "refuse_btn")]
     Wait Until Page Contains   Ви успішно відмовились від участі в кваліфікації переможців   10
 
@@ -655,7 +673,7 @@ Login
     skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
     Click Element              xpath=//a[contains(@id, 'discwalificate_winer_btn_${award_num}')]
     Sleep   4
-    Execute Javascript          $('textarea#adddisqualifyform-description_${award_num}').value = '${description}';
+    ##Execute Javascript          $('textarea#adddisqualifyform-description_${award_num}').value = '${description}';
     Execute Javascript          $('#submit_bid_disqualify_form_${award_num}').click();
     Wait Until Page Contains   Учасника дискваліфіковано   30
 
@@ -709,15 +727,11 @@ Login
     Click Element       id=cansel-bid
 
 Змінити цінову пропозицію
-    [Arguments]  @{ARGUMENTS}
-    [Documentation]
-    ...    ${ARGUMENTS[0]} ==  username
-    ...    ${ARGUMENTS[1]} ==  tenderId
-    ...    ${ARGUMENTS[2]} ==  amount
-    ...    ${ARGUMENTS[3]} ==  amount.value
+    [Arguments]  ${username}  ${tender_uaid}  ${amount}  ${value}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Click Element       id=edit_user_bid
     Sleep   2
-    ${newsum}=          Convert To String       ${ARGUMENTS[3]}
+    ${newsum}=          Convert To String       ${value}
     Input Text          id=addbidform-sum       ${newsum}
     Click Element       id=submit_add_bid_form
     Sleep   10
@@ -799,6 +813,13 @@ Login
     Click Element     id=cwalificate_winer_btn
     Wait Until Page Contains  Переможець кваліфікований успішно  10
 
+Вказати дату отримання оплати
+    [Arguments]  ${username}  ${tender_uaid}  ${contract_index}  ${fieldvalue}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
+    Click Element     id=signed_contract_btn
+    Input Text  xpath=//input[contains(@id,"addsignform-datepaid")]  ${contract_num}
+
 Підтвердити підписання контракту
     [Documentation]
     ...      [Arguments] Username, tender uaid, contract number
@@ -809,7 +830,6 @@ Login
     Input Text  xpath=//input[contains(@id,"addsignform-contractnumber")]  ${contract_num}
     Click Button     id=submit_sign_contract
     Wait Until Page Contains  Договір підписано успішно  10
-
 
 Скасувати закупівлю
   [Documentation]
@@ -838,6 +858,7 @@ Login
 Завантажити угоду до тендера
     [Arguments]  ${username}  ${tender_uaid}  ${contract_num}  ${filepath}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
     Click Element           id=add_contract_docs
     sleep  4
     Choose File             xpath=//input[contains(@id, "contract_doc_upload_fieldcontractSigned")]   ${filepath}
