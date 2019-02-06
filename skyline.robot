@@ -67,6 +67,9 @@ ${locator.cancellations[0].reason}                   id=cancell_reason
 ${locator.cancelldoc.title}                          xpath=//div[contains(@class, 'fg_modal_title')]
 ${locator.cancelldoc.description}                    xpath=//div[contains(@class, 'fg_modal_description')]
 
+${locator.contracts[0].datePaid}                     id=contract_datePaid
+${locator.contracts[1].datePaid}                     id=contract_datePaid
+
 *** Keywords ***
 Підготувати клієнт для користувача
   [Arguments]     ${username}
@@ -278,10 +281,10 @@ Login
     \    reload page
     Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
     Sleep   2
-    Click Element           id=add_user_bid_docs
-    Sleep   2
-    Choose File             xpath=//input[contains(@id, 'bid_doc_upload_fieldauctionProtocol')]   ${filepath}
-    Click Button           xpath=//button[contains(@id,'submit_add_bid_doc_form')]
+    Click Element           id=upload_owner_protocol
+    Sleep   4
+    Choose File             xpath=//input[contains(@id, "award_doc_upload_field_auctionProtocol")]   ${filepath}
+    Click Button           xpath=//button[contains(@id,'submit_owner_add_protocol')]
 
 Пошук тендера по ідентифікатору
   [Arguments]  @{ARGUMENTS}
@@ -616,6 +619,12 @@ Login
   ${return_value}=  Get text          ${locator.cancellations[0].reason}
   [Return]  ${return_value}
 
+Отримати інформацію про contracts[1].datePaid
+  ${return_value}=   Отримати текст із поля і показати на сторінці  contracts[1].datePaid
+  ${return_value}=   convert_skyline_date_to_iso_format   ${return_value}
+  ${return_value}=   add_timezone_to_date   ${return_value.split('.')[0]}
+  [return]  ${return_value}
+
 Отримати інформацію із документа
   [Arguments]  ${username}  ${tender_uaid}  ${doc_id}  ${field}
   ${tender}=  skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
@@ -804,6 +813,13 @@ Login
     Click Element     id=cwalificate_winer_btn
     Wait Until Page Contains  Переможець кваліфікований успішно  10
 
+Вказати дату отримання оплати
+    [Arguments]  ${username}  ${tender_uaid}  ${contract_index}  ${fieldvalue}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+    Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
+    Click Element     id=signed_contract_btn
+    Input Text  xpath=//input[contains(@id,"addsignform-datepaid")]  ${contract_num}
+
 Підтвердити підписання контракту
     [Documentation]
     ...      [Arguments] Username, tender uaid, contract number
@@ -814,7 +830,6 @@ Login
     Input Text  xpath=//input[contains(@id,"addsignform-contractnumber")]  ${contract_num}
     Click Button     id=submit_sign_contract
     Wait Until Page Contains  Договір підписано успішно  10
-
 
 Скасувати закупівлю
   [Documentation]
