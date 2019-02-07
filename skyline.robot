@@ -32,6 +32,8 @@ ${locator.enquiryPeriod.endDate}                     id=enquiryPeriodDataendDate
 ${locator.tenderPeriod.startDate}                    id=tenderPeriodDatastartDate
 ${locator.tenderPeriod.endDate}                      id=tenderPeriodDataendDate
 
+${locator.guarantee.amount}                          xpath=//td[contains(@id, 'info_guarantee')]/span[contains(@class, 'amount')]
+
 ${locator.auctionPeriod.startDate}                   id=auctionPeriodDatastartDate
 ${locator.auctionPeriod.endDate}                     id=auctionPeriodDataendDate
 
@@ -625,6 +627,11 @@ Login
   ${return_value}=   add_timezone_to_date   ${return_value.split('.')[0]}
   [return]  ${return_value}
 
+Отримати інформацію про guarantee.amount
+  ${return_value}=   Отримати текст із поля і показати на сторінці  guarantee.amount
+  ${return_value}=   Convert To Number   ${return_value}
+  [Return]  ${return_value}
+
 Отримати інформацію із документа
   [Arguments]  ${username}  ${tender_uaid}  ${doc_id}  ${field}
   ${tender}=  skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
@@ -787,6 +794,7 @@ Login
 
 Отримати інформацію із пропозиції
     [Arguments]  ${username}  ${tender_uaid}  ${field}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     ${bid}=   skyline.Отримати пропозицію  ${field}
     [return]  ${bid.data.${field}}
 
@@ -806,10 +814,12 @@ Login
 
 Підтвердити постачальника
     [Arguments]  ${username}  ${tender_uaid}  ${award_num}
+    skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     :FOR    ${i}    IN RANGE    1   5
     \    ${test}=   Wait Until Element Is Visible     id=cwalificate_winer_btn    30
     \    Exit For Loop If    ${test}
     \    reload page
+    Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
     Click Element     id=cwalificate_winer_btn
     Wait Until Page Contains  Переможець кваліфікований успішно  10
 
@@ -817,8 +827,9 @@ Login
     [Arguments]  ${username}  ${tender_uaid}  ${contract_index}  ${fieldvalue}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
-    Click Element     id=signed_contract_btn
-    Input Text  xpath=//input[contains(@id,"addsignform-datepaid")]  ${contract_num}
+    Click Element     id=add_datapaid_contract
+    Input Text  xpath=//input[contains(@id,"adddatapaidform-datepaid")]  ${fieldvalue}
+    Click Button     id=submit_datapaid_contract
 
 Підтвердити підписання контракту
     [Documentation]
