@@ -622,6 +622,7 @@ Login
   [Return]  ${return_value}
 
 Отримати інформацію про contracts[1].datePaid
+  Execute Javascript  $("#contract").remove();
   ${return_value}=   Отримати текст із поля і показати на сторінці  contracts[1].datePaid
   ${return_value}=   convert_skyline_date_to_iso_format   ${return_value}
   ${return_value}=   add_timezone_to_date   ${return_value.split('.')[0]}
@@ -672,7 +673,8 @@ Login
     [Arguments]  ${username}  ${tender_uaid}  ${award_num}
     skyline.Пошук тендера по ідентифікатору   ${username}  ${tender_uaid}
     Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
-    Click Element                         xpath=//a[contains(@id, "refuse_btn")]
+    Sleep  5
+    Click Element  xpath=//a[contains(@id, "refuse_btn")]
     Wait Until Page Contains   Ви успішно відмовились від участі в кваліфікації переможців   10
 
 Дискваліфікувати постачальника
@@ -820,6 +822,7 @@ Login
     \    Exit For Loop If    ${test}
     \    reload page
     Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
+    Sleep  10
     Click Element     id=cwalificate_winer_btn
     Wait Until Page Contains  Переможець кваліфікований успішно  10
 
@@ -827,8 +830,10 @@ Login
     [Arguments]  ${username}  ${tender_uaid}  ${contract_index}  ${fieldvalue}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
+    Sleep  10
     Click Element     id=add_datapaid_contract
-    Input Text  xpath=//input[contains(@id,"adddatapaidform-datepaid")]  ${fieldvalue}
+    Sleep  4
+    Input Text  xpath=//input[contains(@id,"adddatepaidform-datepaid")]  ${fieldvalue}
     Click Button     id=submit_datapaid_contract
 
 Підтвердити підписання контракту
@@ -870,6 +875,7 @@ Login
     [Arguments]  ${username}  ${tender_uaid}  ${contract_num}  ${filepath}
     skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
     Execute Javascript  $('html, body').animate({scrollTop: $("#awardswraperstart").offset().top}, 100);
+    sleep  10
     Click Element           id=add_contract_docs
     sleep  4
     Choose File             xpath=//input[contains(@id, "contract_doc_upload_fieldcontractSigned")]   ${filepath}
