@@ -72,6 +72,10 @@ ${locator.cancelldoc.description}                    xpath=//div[contains(@class
 ${locator.contracts[0].datePaid}                     id=contract_datePaid
 ${locator.contracts[1].datePaid}                     id=contract_datePaid
 
+${locator.contracts[0].status}                       id=contract_status
+${locator.contracts[1].status}                       id=contract_status
+
+
 *** Keywords ***
 Підготувати клієнт для користувача
   [Arguments]     ${username}
@@ -169,6 +173,7 @@ Login
     Input text      id=user-firm_phone                      ${procuringEntity_contactPoint_telephone}
     Input text      id=user-edrpoy                          ${procuringEntity_identifier_id}
     Input text      id=user-firm_name                       ${procuringEntity_name}
+    Sleep   4
     Click Element       id=profile_save_btn
     Sleep   4
 
@@ -467,13 +472,15 @@ Login
 Внести зміни в тендер
   [Arguments]  ${username}  ${tender_uaid}  ${field_name}  ${field_value}
   skyline.Пошук тендера по ідентифікатору  ${username}  ${tender_uaid}
+  ${prop_field_name}=         Replace String    ${field_name}    .   _    count=1
   Click Element       xpath=//a[contains(@id, 'update_auction_btn')]
   Sleep   2
-  ${val}=  Run Keyword If  '${field_name}' == 'tenderAttempts'  Convert To String  ${field_value}
-  ...  ELSE IF  '${field_name}' == 'dgfDecisionDate'  skyline_convertdate  ${field_value}
+  ${val}=  Run Keyword If  '${prop_field_name}' == 'tenderAttempts'  Convert To String  ${field_value}
+  ...  ELSE IF  '${prop_field_name}' == 'dgfDecisionDate'  skyline_convertdate  ${field_value}
   ...  ELSE  Set Variable  ${field_value}
-  Run Keyword If  '${field_name}' == 'tenderAttempts'  Select From List By Value  id=addauctionform-tenderattempts  ${val}
-  ...  ELSE  Input text  name=AddAuctionForm[${field_name}]  ${val}
+  ${propval}=  Convert To String  ${val}
+  Run Keyword If  '${prop_field_name}' == 'tenderAttempts'  Select From List By Value  id=addauctionform-tenderattempts  ${propval}
+  ...  ELSE  Input text  name=AddAuctionForm[${prop_field_name}]  ${propval}
   Click Button    id=add-auction-form-save
 
 Отримати інформацію про value.currency
@@ -626,6 +633,18 @@ Login
   ${return_value}=   Отримати текст із поля і показати на сторінці  contracts[1].datePaid
   ${return_value}=   convert_skyline_date_to_iso_format   ${return_value}
   ${return_value}=   add_timezone_to_date   ${return_value.split('.')[0]}
+  [return]  ${return_value}
+
+Отримати інформацію про contracts[1].status
+  Execute Javascript  $("#contract").remove();
+  ${return_value}=   Отримати текст із поля і показати на сторінці  contracts[1].status
+  ${return_value}=   convert_skyline_string     ${return_value}
+  [return]  ${return_value}
+
+Отримати інформацію про contracts[0].status
+  Execute Javascript  $("#contract").remove();
+  ${return_value}=   Отримати текст із поля і показати на сторінці  contracts[0].status
+  ${return_value}=   convert_skyline_string     ${return_value}
   [return]  ${return_value}
 
 Отримати інформацію про guarantee.amount
@@ -835,6 +854,7 @@ Login
     Sleep  4
     Input Text  xpath=//input[contains(@id,"adddatepaidform-datepaid")]  ${fieldvalue}
     Click Button     id=submit_datapaid_contract
+    Wait Until Page Contains  Дату оплати вказано успішно  20
 
 Підтвердити підписання контракту
     [Documentation]
@@ -845,7 +865,7 @@ Login
     Click Element     id=signed_contract_btn
     Input Text  xpath=//input[contains(@id,"addsignform-contractnumber")]  ${contract_num}
     Click Button     id=submit_sign_contract
-    Wait Until Page Contains  Договір підписано успішно  10
+    Wait Until Page Contains  Договір підписано успішно  20
 
 Скасувати закупівлю
   [Documentation]
