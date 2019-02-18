@@ -852,6 +852,7 @@ Login
     Sleep  10
     Click Element     id=add_datapaid_contract
     Sleep  4
+    ${fieldvalue}=  skyline_convertdate  ${fieldvalue}
     Input Text  xpath=//input[contains(@id,"adddatepaidform-datepaid")]  ${fieldvalue}
     Click Button     id=submit_datapaid_contract
     Wait Until Page Contains  Дату оплати вказано успішно  20
