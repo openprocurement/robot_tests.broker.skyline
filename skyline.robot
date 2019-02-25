@@ -230,6 +230,15 @@ Login
 Додати предмет закупівлі
     [Arguments]  ${username}  ${tender_uaid}  ${item}
     Click Element   xpath=//a[contains(@id, "update_auction_btn")]
+    Sleep  5
+    Click Element   id=additem
+    Select From List    xpath=//select[@id="additemform-3-unit_code"]         ${item.unit.code}
+    Input text      id=additemform-3-description                              ${item.description}
+    Input text      id=additemform-3-quantity                                 ${item.quantity}
+    Execute Javascript    $("#additemform-3-classification_id").val("${item.classification.id}");
+    Execute Javascript    $("#additemform-3-classification_id").trigger("change");
+    Click Button    id=add-auction-form-save
+    Wait Until Element Is Visible       id=auction_title      30
 
 Видалити предмет закупівлі
     [Arguments]  ${username}  ${tender_uaid}  ${item_id}  ${lot_id}=${Empty}
